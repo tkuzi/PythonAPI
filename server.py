@@ -27,8 +27,13 @@ def _set_sqlite_pragma(dbapi_connection, connection_record):
     if isinstance(dbapi_connection, SQLite3Connection):
         cursor = dbapi_connection.cursor()
         cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
+#linken van flask met sqlite via de ORM
+db = SQLAlchemy(app)
 
+# wordt gebruikt om later de tables te updaten
+now = datetime.now()
 ###
 # models
 ###
