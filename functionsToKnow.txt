@@ -1,0 +1,2 @@
+het aanmaken van de DB gebeurd met volgende cmds:
+- 

@@ -11,6 +11,9 @@ from sqlalchemy.engine import Engine
 
 from flask_sqlalchemy import SQLAlchemy
 
+#@@@@@@@@@@@@@
+import linked_listv3
+
 ###
 # app
 ###
@@ -26,7 +29,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = 0
 
 #config sqlite om de foreign key constraints te editten -> dan kan je tabellen met elkaar joinen dmv de primary key
 # om de db connnectie te configureren voor foreign keys te gebruiken -> niet leren !!!!!
-@event.listens_for(Engine, "connect")
+@event.listens_for(Engine, "connect") #@event is een decorator
 def _set_sqlite_pragma(dbapi_connection, connection_record):
     if isinstance(dbapi_connection, SQLite3Connection):
         cursor = dbapi_connection.cursor()
@@ -71,13 +74,41 @@ print('run the script succesfull')
 
 @app.route("/user", methods=["POST"]) #als een user in de url zit, dan wordt de create_user functie opgeroepen
 def create_user():
-    pass
+    data = request.get_json()
+    new_user = User(
+        name=data["name"],
+        email=data["email"],
+        phone=data["phone"],
+        adress = data["adress"]
+
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": "user created"}),200
+
 
 
 
 @app.route("/user/descending_id", methods=["GET"])
 def get_all_users_descending():
-    pass
+    users = User.query.all() #ORM functie om alles in de User DB te queryen volgens ID -> standaard!
+    print("users",users)
+    all_users_ll = linked_listv3.LinkedList()
+
+    for user in users:
+        all_users_ll.insert_start(
+
+        
+            {
+                "id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "phone": user.phone,
+                "adress": user.adress,
+            }
+        )
+        #deze functie zet de data om van een array naar een json file
+    return jsonify(all_users_ll.to_list()),200
 
 
 @app.route("/user/ascending_id", methods=["GET"])

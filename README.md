@@ -16,6 +16,9 @@
 - Creating a blog post model
 - decorator
 - functions pass
+- classes
+- importing modules or scripts from others you created
+- basic SQL
 
 ### Setup
 - Setup FLASK & sql with sqlAlchemy etc (just copy)
@@ -25,3 +28,9 @@
     - db.create_all()
 - Creating the routes for the API
 - internal variables
+- testing the post user with thunder client or postman
+- using linked list // data structure
+- generating dummy date
+
+### to remember
+- check virtual environment running with env | grep VIRTUAL_ENV
