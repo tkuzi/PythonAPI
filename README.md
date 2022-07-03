@@ -34,3 +34,4 @@
 
 ### to remember
 - check virtual environment running with env | grep VIRTUAL_ENV
+- we get back an list from the SQL query.qll() method but we don't see the content when we print that list
