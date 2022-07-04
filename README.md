@@ -31,7 +31,22 @@
 - testing the post user with thunder client or postman
 - using linked list // data structure
 - generating dummy date
+- using hash table // data structure
 
 ### to remember
 - check virtual environment running with env | grep VIRTUAL_ENV
 - we get back an list from the SQL query.qll() method but we don't see the content when we print that list
+
+### Functies
+- ord(i) om een key naar unicode om te zetten
+
+
+### Structures
+- Hashtable
+[0]  Siemnes : value --> None
+  [1]  hi : value --> POPO : value --> None
+  [2]  Thoams : value --> None
+ [3] None
+ - Linked List 
+
+ https://youtu.be/74NW-84BqbA?t=7153

@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
 from datetime import datetime
+import random
 
 # standaard lib dat meekomt met python
 from sqlite3 import Connection as SQLite3Connection
+from matplotlib.pyplot import title
 
 # ORM wrappper voor SQL en flask
 
@@ -15,6 +17,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 # @@@@@@@@@@@@@
 import linked_listv3
+import hashTable
+import binary_search_tree
 
 ###
 # app
@@ -58,7 +62,7 @@ class User(db.Model):
     email = db.Column(db.String(50))
     phone = db.Column(db.String(50))
     adress = db.Column(db.String(200))
-    posts = db.relationship("BlogPost")
+    posts = db.relationship("BlogPost", cascade="all, delete") #wnr we de user deleten wordt ook de blogpost delete
 
 
 class BlogPost(db.Model):
@@ -85,7 +89,8 @@ print("run the script succesfull")
     "/user", methods=["POST"]
 )  # als een user in de url zit, dan wordt de create_user functie opgeroepen
 def create_user():
-    data = request.get_json()
+    data = request.get_json() #de data dat in de post requset zit in de json tab
+    # dit is de payload van de request
     new_user = User(
         name=data["name"],
         email=data["email"],
@@ -167,18 +172,63 @@ def get_one_user(user_id):
 # <user_id> is een variabele dat we uit de route gaan halen
 @app.route("/user/<user_id>", methods=["DELETE"])
 def delete_user(user_id):
-    pass
+    # naast de user moet ook de blogpost die gelinked is ook verwijdert worden 
+    user = User.query.filter_by(id=user_id).first()
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"message": f"user {user_id} deleted"}), 200
+
 
 
 @app.route("/blog_post/<user_id>", methods=["POST"])
 def create_blog_post(user_id):
-    pass
 
+    ## getting the blog post data from the request
+    data = request.get_json()
+    user = User.query.filter_by(id=user_id).first()
+    print(user)
+    if not user:
+        return jsonify({"message": "user not found"}),400
+    ht = hashTable.Hash_Table(10)
+    ht.add_key_value("title",data["title"])
+    ht.add_key_value("body",data["body"])
+    ht.add_key_value("date",now)
+    ht.add_key_value("user_id",user_id)
 
-@app.route("/user/<user_id>", methods=["GET"])
-def get_all_blog_posts(user_id):
-    pass
+    ## creating the blogpost in SQL
+    new_blog_post = BlogPost(
+        title=ht.get_value("title"),
+        body=ht.get_value("body"),
+        date=ht.get_value("date"),
+        user_id = ht.get_value("user_id")
+    )
+    db.session.add(new_blog_post)
+    db.session.commit()
+    return jsonify({"message":"the blog post has been created"}),200
 
+    
+
+# binary search tree -> retrieve one blogpost based on its ID
+@app.route("/blog_post/<blog_post_id>", methods=["GET"])
+def get_all_blog_posts(blog_post_id):
+    blog_posts = BlogPost.query.all()
+    random.shuffle(blog_posts)
+    # als de query niet random is dan krijg je geen tree maar gewoon een lijst omdat de node altijd links ofwel altijd rechts zullen toegevoegd worden
+    bst = binary_search_tree.BinarySearchTree()
+    for post in blog_posts:
+        #we voegen deze toe als dictionaries
+        bst.insert({
+            "id": post.id,
+            "title": post.title,
+            "body": post.body,
+            "user_id":post.user_id
+
+        })
+    post = bst.search(blog_post_id) # returns the blogpost of the past blogpost ID
+    # als de post niet bestaat krijg je een None
+    if not post:
+        return jsonify({"message:": "post not found"})
+    return jsonify(post)
 
 @app.route("/blog_post/<blog_post_id>", methods=["GET"])
 def get_one_blog_post(blog_post_id):
